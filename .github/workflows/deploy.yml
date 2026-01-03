@@ -60,5 +60,5 @@ jobs:
           region: ${{ env.REGION }}
           image: ${{ steps.build-image.outputs.image_url }}
           secrets: |
-            /app/.env.production:sandbox-env:latest
+            .env=sandbox-env:latest
           flags: --allow-unauthenticated --service-account=cloud-run-runner@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
