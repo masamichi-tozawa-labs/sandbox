@@ -4,14 +4,28 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
     "dev": "nuxt dev",
+    "dev:docker": "docker compose up -d && nuxt dev",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f mysql",
+    "docker:up": "docker compose up -d",
     "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "preview": "nuxt preview"
   },
   "dependencies": {
+    "drizzle-orm": "^0.36.4",
+    "mysql2": "^3.11.5",
     "nuxt": "^4.2.2",
     "vue": "^3.5.26",
     "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "drizzle-kit": "^0.30.0"
   }
 }
