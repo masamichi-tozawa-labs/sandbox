@@ -1,0 +1,58 @@
+name: Deploy Nuxt App to Cloud Run
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: masamichi-tozawa-sandbox
+  REGION: asia-northeast1
+  SERVICE_NAME: sandbox
+  REPOSITORY: sandbox
+  WORKLOAD_IDENTITY_PROVIDER: projects/309116149930/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: gh-actions-deployer@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+
+      - name: Docker Auth
+        run: |-
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+      - name: Build and Push Container
+        id: build-image
+        run: |-
+          IMAGE_TAG=${{ github.ref_name }}
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            IMAGE_TAG="manual-${{ github.sha }}"
+          fi
+          
+          FULL_IMAGE_NAME="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${IMAGE_TAG}"
+          
+          docker build -t "$FULL_IMAGE_NAME" .
+          docker push "$FULL_IMAGE_NAME"
+          
+          echo "image_url=$FULL_IMAGE_NAME" >> $GITHUB_OUTPUT
+
+      - name: Deploy to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE_NAME }}
+          region: ${{ env.REGION }}
+          image: ${{ steps.build-image.outputs.image_url }}
+          flags: --allow-unauthenticated
