@@ -28,8 +28,8 @@ const parseDatabaseUrl = (url: string | undefined) => {
 const dbConfig = parseDatabaseUrl(process.env.DATABASE_URL)
 
 export default defineConfig({
-  schema: './db/schema/index.ts',
-  out: './drizzle',
+  schema: './server/database/schema/index.ts',
+  out: './server/database/',
   dialect: 'mysql',
   dbCredentials: dbConfig,
 })
