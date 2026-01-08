@@ -1,3 +1,5 @@
+import { fileURLToPath } from "node:url";
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
@@ -5,11 +7,7 @@ export default defineNuxtConfig({
   experimental: {
     typedPages: true,
   },
-  vite: {
-    resolve: {
-      alias: {
-        '@db': './db',
-      },
-    },
+  alias: {
+    '@db': fileURLToPath(new URL('./server/database', import.meta.url)),
   },
 })
